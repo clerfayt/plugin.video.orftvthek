@@ -1,0 +1,1 @@
+The script AdobeHDS.php is under GNU GENERAL PUBLIC LICENSE v3 by github user 'K-S-V' (https://github.com/K-S-V/Scripts)

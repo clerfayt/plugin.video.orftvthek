@@ -9,5 +9,8 @@
     </category>
     <category label="30901">
         <setting id="recordQuality" type="enum" label="30902" lvalues="30023|30024|30025|30044" default="3"/>
+        <setting id="recordFolder" type="folder" label="30911" default="" source="video"/>
+        <setting id="recordGenre" type="text" label="30912" default=""/>
+        <setting id="recordTags" type="text" label="30913" default=""/>
     </category>
 </settings>

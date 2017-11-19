@@ -240,3 +240,35 @@ msgstr "Genre eingeben (Leer = kein Genre)."
 msgctxt "#30910"
 msgid "Enter comma separated tags."
 msgstr "Tags eingeben (Komma-getrennt)."
+
+msgctxt "#30911"
+msgid "Default storage folder"
+msgstr "Standard Ordner für aufgezeichnete Dateien"
+
+msgctxt "#30912"
+msgid "Default genre"
+msgstr "Standard Genre"
+
+msgctxt "#30913"
+msgid "Default tags (comma-separated)"
+msgstr "Standard Tags (Komma-getrennt)"
+
+msgctxt "#30914"
+msgid "Recording stream..."
+msgstr "Stream wird aufzeichnet..."
+
+msgctxt "#30915"
+msgid "Saving video file..."
+msgstr "Video Stream wird heruntergeladen..."
+
+msgctxt "#30916"
+msgid "Generating NFO file..."
+msgstr "NFO Datei wird erzeugt..."
+
+msgctxt "#30917"
+msgid "Recording done."
+msgstr "Aufnahme fertiggestellt."
+
+msgctxt "#30918"
+msgid "Recording failed!"
+msgstr "Aufnahme fehlgeschlagen!"

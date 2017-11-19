@@ -18,8 +18,8 @@ def debugLog(message,type):
     output = "[ORF TVTHEK] ("+str(type)+") "+str(message);
     xbmc.log(msg=output, level=xbmc.LOGDEBUG)
 
-def notifyUser(message):
+def notifyUser(message, time_=2000):
     addon = xbmcaddon.Addon()
     name = addon.getAddonInfo('name')
     icon = addon.getAddonInfo('icon')
-    xbmc.executebuiltin('Notification(%s, %s, %s, %s)'%(name,message, "", icon))
+    xbmc.executebuiltin('Notification(%s, %s, %s, %s)' % (name, message, str(time_), icon))

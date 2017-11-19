@@ -254,3 +254,35 @@ msgstr ""
 msgctxt "#30910"
 msgid "Enter comma separated tags."
 msgstr ""
+
+msgctxt "#30911"
+msgid "Default storage folder"
+msgstr ""
+
+msgctxt "#30912"
+msgid "Default genre"
+msgstr ""
+
+msgctxt "#30913"
+msgid "Default tags (comma-separated)"
+msgstr ""
+
+msgctxt "#30914"
+msgid "Recording stream..."
+msgstr ""
+
+msgctxt "#30915"
+msgid "Saving video file..."
+msgstr ""
+
+msgctxt "#30916"
+msgid "Generating NFO file..."
+msgstr ""
+
+msgctxt "#30917"
+msgid "Recording done."
+msgstr ""
+
+msgctxt "#30918"
+msgid "Recording failed!"
+msgstr ""
