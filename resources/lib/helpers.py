@@ -15,7 +15,7 @@ def parameters_string_to_dict(parameters):
 
 
 def debugLog(message,type):
-    output = "[ORF TVTHEK] ("+type+") "+message;
+    output = "[ORF TVTHEK] ("+str(type)+") "+str(message);
     xbmc.log(msg=output, level=xbmc.LOGDEBUG)
 
 def notifyUser(message):

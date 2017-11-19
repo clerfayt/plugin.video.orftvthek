@@ -196,3 +196,47 @@ msgstr "Fehler"
 msgctxt "#30052"
 msgid "This Video is offline"
 msgstr "Dieses Video ist offline"
+
+msgctxt "#30900"
+msgid "Main settings"
+msgstr "Einstellungen"
+
+msgctxt "#30901"
+msgid "Recorder settings"
+msgstr "Aufnahme Einstellungen"
+
+msgctxt "#30902"
+msgid "Default record quality"
+msgstr "Standard Aufnahme Qualität"
+
+msgctxt "#30903"
+msgid "Record stream"
+msgstr "Stream aufzeichnen"
+
+msgctxt "#30904"
+msgid "Choose record quality"
+msgstr "Aufnahme Qualität wählen"
+
+msgctxt "#30905"
+msgid "Select folder to save video"
+msgstr "Ordner zum Speichern auswählen"
+
+msgctxt "#30906"
+msgid "Separate folder?"
+msgstr "Separater Ordner"
+
+msgctxt "#30907"
+msgid "Do you want to create a separate folder for your video within the selected folder?"
+msgstr "Soll ein separater Ordner für das Video innerhalb des gewählten Ordners erzeugt werden?"
+
+msgctxt "#30908"
+msgid "Recording cancelled."
+msgstr "Aufnahme abgebrochen."
+
+msgctxt "#30909"
+msgid "Enter genre (Empty = no genre)."
+msgstr "Genre eingeben (Leer = kein Genre)."
+
+msgctxt "#30910"
+msgid "Enter comma separated tags."
+msgstr "Tags eingeben (Komma-getrennt)."

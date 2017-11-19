@@ -8,7 +8,7 @@ import urllib
 import xbmc
 import xbmcgui
 import xbmcplugin
-
+import Recorder
 import simplejson
 from . import Settings
 
@@ -70,6 +70,9 @@ def createListItem(title,banner,description,duration,date,channel,videourl,playa
                 # setSubtitles was introduced in Helix (v14)
                 # catch the error in Gotham (v13)
                 pass
+
+        contextMenuItems.append(Recorder.recContextMenuItem(
+            sys.argv[0], title, videourl, description, date, duration, channel, banner))
 
     if blacklist:
         match = re.search(r'( - \w\w, \d\d.\d\d.\d\d\d\d)',title)

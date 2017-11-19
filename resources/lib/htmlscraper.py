@@ -398,6 +398,7 @@ class htmlScraper(Scraper):
                 debugLog("Error Loading Episode from %s" % url,'Exception')
                 notifyUser((self.translation(30052)).encode("utf-8"))
                 current_subtitles = None
+                current_videourl = None
 
             if len(video_items) > 1:
                 debugLog("Found Video Playlist with %d Items" % len(video_items),'Info')

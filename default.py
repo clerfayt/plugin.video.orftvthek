@@ -8,7 +8,7 @@ import urllib
 import xbmcaddon
 import xbmcgui
 import xbmcplugin
-
+import resources.lib.Recorder as Recorder
 import CommonFunctions as common
 
 from resources.lib.base import *
@@ -216,6 +216,12 @@ elif mode == 'openTopic':
 elif mode == 'openEpisode':
     scraper.getEpisode(link,playlist)
     listCallback(False,pluginhandle)
+elif mode == Recorder.recGetPluginMode():
+    Recorder.recRecord(params.get("title"), videourl,
+                       params.get("plot"), params.get("aired"),
+                       params.get("duration"), params.get("channel"),
+                       params.get("banner"), video_quality_list)
+    listCallback(False, pluginhandle)
 elif mode == 'liveStreamNotOnline':
     scraper.getLiveNotOnline(link)
     listCallback(False,pluginhandle)
