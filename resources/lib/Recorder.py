@@ -1,15 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import xbmc
-import xbmcaddon
-import xbmcgui
-import sys
-import urllib
-import re
-import subprocess
-import os
-import os.path
-import select
+
+import xbmc, xbmcaddon, xbmcgui
+import urllib, re
+import sys, os, os.path
+import subprocess, select
 import datetime
 
 from .helpers import *
@@ -73,6 +68,9 @@ class RecSettings:
     @staticmethod
     def defaultTags():
         return RecSettings._addon.getSetting("recordTags").split(",")
+    @staticmethod
+    def defaultTvShow():
+        return RecSettings._addon.getSetting("recordTvShow")
 
 
 def transl(translationId):
@@ -91,7 +89,8 @@ def recGetPluginMode():
     return "recordStream"
 
 
-def recContextMenuItem(pluginHandle, title, videourl, plot, date, duration, channel, banner):
+def recContextMenuItem(pluginHandle, title, videourl, plot, date,
+                       duration, channel, banner):
     """Create a contextMenuItem (i.e. a tuple(label, action))
        to be used for stream recording action.
     """
@@ -112,7 +111,8 @@ def recExtractManifestURL(videourl):
     ret = urllib.unquote_plus(ret)
     # Change delivery method progressive to hds
     ret = re.sub(r"/online/[0-9a-f]+/[0-9a-fA-F]+/", "/", ret)
-    ret = ret.replace("apasfpd.apa.at/", "apasfiis.apa.at/f4m/") + "/manifest.f4m"
+    ret = ret.replace("apasfpd.apa.at/", "apasfiis.apa.at/f4m/"
+                      ) + "/manifest.f4m"
     return ret
 
 
@@ -125,38 +125,45 @@ def recVideourlChangeQuality(videourl, new_qualityString):
                     .replace("_q1a", newQS).replace("_Q1A", newQS))
 
 
-def recRecord(title, videourl, plot, aired, duration, channel, banner, videoQualityStrings):
+def recRecord(title, videourl, plot, aired, duration, channel,
+              banner, videoQualityStrings):
     """Do the stream record."""
     title = urllib.unquote_plus(title).encode('UTF-8')
     plot = urllib.unquote_plus(plot).encode('UTF-8')
     channel = urllib.unquote_plus(channel)
 
-    (quality, targetFolder, useSeparateFolder, saveNFO, mediaType, genre, tagString) = recShowParamDialogs()
+    (quality, targetFolder, useSeparateFolder, saveNFO,
+     mediaType, tvshow, genre, tagString) = recShowParamDialogs()
 
-    if not targetFolder:
+    if not targetFolder:  #user did not choose a folder -> cancel
         notifyUser(transl(30908))
         return
 
     quality = videoQualityStrings[quality]
     if saveNFO and mediaType is not None:
         mediaType = ["movie", "episodedetails"][mediaType]
-    
+
+    #get URL of manifest file
     manifestURL = recExtractManifestURL(videourl)
     manifestURL = recVideourlChangeQuality(manifestURL, quality)
 
-    if not aired:  #try to get aired date from manifestURL
+    #try to get aired date from manifestURL
+    if not aired:
         found = manifestURL.find("worldwide")
         if found > -1:
             tmpAired = manifestURL[(found+10):(found+20)]
             if None != re.match(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$", tmpAired):
                 aired = tmpAired
-    if not aired:  # otherwise take current date
+    # otherwise take current date
+    if not aired:
         aired = datetime.datetime.now().strftime("%Y-%m-%d")
-    
+
+    # build (default) filename
     targetFile = (aired + "_" + title.replace(":","_")
                   .replace(" ","-").replace("?","").replace("!","")
                   .replace("/","").replace("\\",""))
-    
+
+    # ask user for filename
     if RecSettings.askFilename():
         targetFile = xbmcgui.Dialog().input(transl(30934), defaultt=targetFile)
         targetFile = (targetFile.replace("?","").replace("!","")
@@ -172,12 +179,21 @@ def recRecord(title, videourl, plot, aired, duration, channel, banner, videoQual
             notifyUser(transl(30908))
             return
 
+    #create folder structure
+    try: os.makedirs(targetFolder)
+    except: pass
+
+    # show progress while downloading and saving
     pDialog = xbmcgui.DialogProgress()
     pDialog.create(transl(30906), title, "", transl(30914))
+    
     if recDownloadStream(manifestURL, targetFolder, targetFile, pDialog, title):
         if saveNFO:
-            recGenerateNFO(title, plot, aired, duration, channel, mediaType, genre, tagString, pDialog, title)
-        notifyUser(cutStr(title, 25) + (".." if title[24:] else "") + "\n" + transl(30917), 3000)  #done
+            nfoFile = targetFolder + targetFile[:-4] + ".nfo"
+            recGenerateNFO(nfoFile, title, plot, aired, duration, channel,
+                           mediaType, tvshow, genre, tagString, pDialog, title)
+        notifyUser(cutStr(title, 25) + (".." if title[24:] else "") + "\n"
+                   + transl(30917), 3000)  #done
     else:
         notifyUser(cutStr(title, 25) + "\n" + transl(30918), 3000)  #error
     pDialog.close()
@@ -186,61 +202,118 @@ def recRecord(title, videourl, plot, aired, duration, channel, banner, videoQual
 def recShowParamDialogs():
     """Show dialogs questioning download/storing parameters."""
     dialog = xbmcgui.Dialog()
-    
+
+    #ask: quality
     defaultQuality = RecSettings.defaultRecordQuality(range(4))
     quality = defaultQuality if not RecSettings.askRecordQuality() else \
               dialog.select(transl(30904),
                             [transl(i) for i in [30023, 30024, 30025, 30044]],
                             preselect=defaultQuality)
 
+    #ask: folder
     folder = RecSettings.defaultFolder() if not RecSettings.askFolder() else \
-             dialog.browseSingle(3, transl(30905), "video", defaultt=RecSettings.defaultFolder())
+             dialog.browseSingle(3, transl(30905), "video",
+                                 defaultt=RecSettings.defaultFolder())
 
-    useSeparateFolder = RecSettings.defaultUseSeparateFolder() if not RecSettings.askUseSeparateFolder() else \
+    useSeparateFolder = RecSettings.defaultUseSeparateFolder() if not \
+                                RecSettings.askUseSeparateFolder() else \
                         dialog.yesno(transl(30906), transl(30907))
 
+    #ask: save a NFO file?
     saveNFO = RecSettings.defaultSaveNFO() if not RecSettings.askSaveNFO() else \
               dialog.yesno(transl(30906), transl(30933))
 
+    mediaType = None
+    tvshow = None
+    genre = None
+    tags = None
     if saveNFO:
+        #ask: media type (movie/episode)
         defaultMediaType = RecSettings.defaultMediaType(range(2))
         mediaType = defaultMediaType if not RecSettings.askMediaType() else \
                   dialog.select(transl(30932), [transl(i) for i in [30924, 30925]],
                                 preselect=defaultMediaType)
 
+        #ask: TV-show (if episode)
+        if mediaType == 1:
+            tvshow = dialog.input(transl(30936),
+                                  defaultt=RecSettings.defaultTvShow())
+
+        #ask: genre
         genre = RecSettings.defaultGenre() if not RecSettings.askGenre() else \
                 dialog.input(transl(30909), defaultt=RecSettings.defaultGenre())
 
+        #ask: tags
         tags = RecSettings.defaultTagString() if not RecSettings.askTagString() else \
                 dialog.input(transl(30910), defaultt=RecSettings.defaultTagString())
-    else:
-        mediaType = None
-        genre = None
-        tags = None
     
-    return (quality, folder, useSeparateFolder, saveNFO, mediaType, genre, tags)
+    return (quality, folder, useSeparateFolder, saveNFO,
+            mediaType, tvshow, genre, tags)
 
-
-def recGenerateNFO(title, plot, aired, duration, channel, mediaType, genre, tags, pDialog=None, pDialogHeading=""):
+def recGenerateNFO(filepath, title, plot, aired, duration, channel, mediaType,
+                   tvShowName, genres, tags, pDialog=None, pDialogHeading=""):
     """Generate an NFO file for the given properties."""
-    #TODO
-    #pDialog.update(int(percentage), pDialogHeading, "", transl(30916))
-    recLog("TODO: recGenerateNFO")
+    def _progress(percentage):
+        if pDialog:
+            pDialog.update(percentage, pDialogHeading, "", transl(30916))
+    _progress(2)
+    try:
+        f = open(filepath, "w+")
+        try:
+            f.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n")
+            _progress(10)
+            f.write("<%s>\n" % mediaType)
+            _progress(19)
+            f.write("\t<title>%s</title>\n" % title)
+            _progress(28)
+            if mediaType == "episodedetails" and tvShowName:
+                f.write("\t<showtitle>%s</showtitle>\n" % tvShowName)
+            _progress(37)
+            f.write("\t<plot>%s</plot>\n" % plot)
+            _progress(45)
+            if aired:
+                f.write("\t<aired>%s</aired>\n" % aired)
+            _progress(54)
+            if duration:
+                f.write("\t<duration>%d</duration>\n" % int(round(int(duration) / 60.0)))
+            _progress(63)
+            if channel:
+                f.write("\t<studio>%s</studio>\n" % channel)
+            _progress(70)
+            if genres:
+                for genre in genres.split(","):
+                    f.write("\t<genre>%s</genre>\n" % genre)
+            _progress(80)
+            if tags:
+                for tag in tags.split(","):
+                    f.write("\t<tag>%s</tag>\n" % tag)
+            _progress(90)
+            f.write("</%s>\n" % mediaType)
+            _progress(100)
+        except:
+            notifyUser(transl(30938))  #error
+        finally:
+            f.close()
+    except (IOError, OSError) as e:
+        notifyUser(transl(30938))  #error
 
 
-def recDownloadStream(manifestURL, targetFolder, targetFile, pDialog=None, pDialogHeading=""):
+def recDownloadStream(manifestURL, targetFolder, targetFile,
+                      pDialog=None, pDialogHeading=""):
     """Actually download the stream."""
-    binPath = xbmcaddon.Addon().getAddonInfo('path') + "/resources/lib/stream-recorder/"
+    binPath = xbmcaddon.Addon().getAddonInfo('path') \
+              + "/resources/lib/stream-recorder/"
     recCommand = "php AdobeHDS.php --manifest %s --outdir %s --outfile %s --delete" % (manifestURL, targetFolder, targetFile)
 
     recLog("binPath: " + binPath)
     recLog("recCommand: " + recCommand)
     try:
+        #run command to record stream
         proc = subprocess.Popen(args=recCommand.split(" "),
                                 cwd=binPath, stdout=subprocess.PIPE)
         if pDialog:
+            #if progressDialog, calculate progress by analyzing command's output
             running = True #TODO error handling!!!
-            noOfFragments = None
             while running:
                 rlist, wlist, xlist = select.select([proc.stdout], [], [])
                 for stdout in rlist:
@@ -251,11 +324,11 @@ def recDownloadStream(manifestURL, targetFolder, targetFile, pDialog=None, pDial
                         pDialog.update(int(percentage), pDialogHeading, "", transl(30915))
                     running = (txt.find("Finished") == -1)
         outs, errs = proc.communicate()
-        recLog("outs, errs: " + str(outs) + " ;; " + str(errs))
         return proc.returncode == 0
     except:
         recLog("The record command yielded an error!", xbmc.LOGERROR)
         return False
+
 
 def cutStr(string_, length_, ellips="..."):
     """Truncate the given string if its length is greater
@@ -265,5 +338,6 @@ def cutStr(string_, length_, ellips="..."):
     if shortLen < 0:
         return ellips[:length_]
     else:
-        return string_[:shortLen] + (ellips if string_[length_:] else string_[shortLen:length_])
+        return string_[:shortLen] + (ellips if string_[length_:] else \
+                                     string_[shortLen:length_])
 

@@ -340,3 +340,15 @@ msgstr "Video Dateinamen (ohne Dateinamen-Erweiterung) eingeben"
 msgctxt "#30935"
 msgid "File already exists. Overwrite?"
 msgstr "Datei existiert bereits. Überschreiben?"
+
+msgctxt "#30936"
+msgid "Name of the TV-show"
+msgstr "Name der TV-Serie"
+
+msgctxt "#30937"
+msgid "Default name of TV-show"
+msgstr "Standard Name einer TV-Serie"
+
+msgctxt "#30938"
+msgid "Error while creating nfo file."
+msgstr "Fehler beim Erzeugen der nfo Datei."

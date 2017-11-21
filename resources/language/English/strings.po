@@ -354,3 +354,15 @@ msgstr ""
 msgctxt "#30935"
 msgid "File already exists. Overwrite?"
 msgstr ""
+
+msgctxt "#30936"
+msgid "Name of the TV-show"
+msgstr ""
+
+msgctxt "#30937"
+msgid "Default name of TV-show"
+msgstr ""
+
+msgctxt "#30938"
+msgid "Error while creating nfo file."
+msgstr ""

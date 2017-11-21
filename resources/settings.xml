@@ -31,5 +31,7 @@
         <setting type="sep"/>
         <setting id="askRecordTags" type="bool" label="30927" default="false" />
         <setting id="recordTags" type="text" label="30913" default=""/>
+        <setting type="sep"/>
+        <setting id="recordTvShow" type="text" label="30937" default=""/>
     </category>
 </settings>
