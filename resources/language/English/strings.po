@@ -236,7 +236,7 @@ msgid "Select folder to save video"
 msgstr ""
 
 msgctxt "#30906"
-msgid "Separate folder?"
+msgid "ORF-TVthek Recorder"
 msgstr ""
 
 msgctxt "#30907"
@@ -285,4 +285,72 @@ msgstr ""
 
 msgctxt "#30918"
 msgid "Recording failed!"
+msgstr ""
+
+msgctxt "#30919"
+msgid "Ask for record quality?"
+msgstr ""
+
+msgctxt "#30920"
+msgid "Ask for storage folder?"
+msgstr ""
+
+msgctxt "#30921"
+msgid "Ask for filename?"
+msgstr ""
+
+msgctxt "#30922"
+msgid "Ask for media type (movie vs. TV show episode)?"
+msgstr ""
+
+msgctxt "#30923"
+msgid "Default media type"
+msgstr ""
+
+msgctxt "#30924"
+msgid "Movie"
+msgstr ""
+
+msgctxt "#30925"
+msgid "TV show episode"
+msgstr ""
+
+msgctxt "#30926"
+msgid "Ask for genre?"
+msgstr ""
+
+msgctxt "#30927"
+msgid "Ask for tags?"
+msgstr ""
+
+msgctxt "#30928"
+msgid "Ask for whether to use a separate folder for recorded videos?"
+msgstr ""
+
+msgctxt "#30929"
+msgid "Default: Use a separate folder for recorded videos?"
+msgstr ""
+
+msgctxt "#30930"
+msgid "Ask for whether to save NFO file (video infos)?"
+msgstr ""
+
+msgctxt "#30931"
+msgid "Default: Save NFO file (video infos)?"
+msgstr ""
+
+msgctxt "#30932"
+msgid "Choose media type"
+msgstr ""
+
+msgctxt "#30933"
+msgid "Save NFO file (video infos)?"
+msgstr ""
+
+msgctxt "#30934"
+msgid "Enter video filename (without file extension)"
+msgstr ""
+
+msgctxt "#30935"
+msgid "File already exists. Overwrite?"
 msgstr ""

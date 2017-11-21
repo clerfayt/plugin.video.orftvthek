@@ -8,7 +8,9 @@ import urllib
 import re
 import subprocess
 import os
+import os.path
 import select
+import datetime
 
 from .helpers import *
 
@@ -16,18 +18,55 @@ class RecSettings:
     """Helper class with static methods for retrieving settings values."""
     _addon = xbmcaddon.Addon()
     @staticmethod
+    def askRecordQuality():
+        return RecSettings._addon.getSetting("askRecordQuality") == "true"
+    @staticmethod
     def defaultRecordQuality(qualityList):
-	recordQuality = RecSettings._addon.getSetting("recordQuality")
-	try:
-	    return qualityList[int(recordQuality)]
-	except (IndexError, ValueError):
+        recordQuality = RecSettings._addon.getSetting("recordQuality")
+        try:
+            return qualityList[int(recordQuality)]
+        except (IndexError, ValueError):
             return qualityList[2 if len(qualityList) > 2 else 0]
+    @staticmethod
+    def askFolder():
+        return RecSettings._addon.getSetting("askRecordFolder") == "true"
     @staticmethod
     def defaultFolder():
         return RecSettings._addon.getSetting("recordFolder")
     @staticmethod
+    def askUseSeparateFolder():
+        return RecSettings._addon.getSetting("askUseSeparateFolder") == "true"
+    @staticmethod
+    def defaultUseSeparateFolder():
+        return RecSettings._addon.getSetting("useSeparateFolder") == "true"
+    @staticmethod
+    def askFilename():
+        return RecSettings._addon.getSetting("askRecordFilename") == "true"
+    @staticmethod
+    def askSaveNFO():
+        return RecSettings._addon.getSetting("askSaveNFO") == "true"
+    @staticmethod
+    def defaultSaveNFO():
+        return RecSettings._addon.getSetting("saveNFO") == "true"
+    @staticmethod
+    def askMediaType():
+        return RecSettings._addon.getSetting("askRecordMediaType") == "true"
+    @staticmethod
+    def defaultMediaType(mediaTypeList):
+        mediaType = RecSettings._addon.getSetting("recordMediaType")
+        try:
+            return mediaTypeList[int(mediaType)]
+        except (IndexError, ValueError):
+            return mediaTypeList[0]
+    @staticmethod
+    def askGenre():
+        return RecSettings._addon.getSetting("askRecordGenre") == "true"
+    @staticmethod
     def defaultGenre():
         return RecSettings._addon.getSetting("recordGenre")
+    @staticmethod
+    def askTagString():
+        return RecSettings._addon.getSetting("askRecordTags") == "true"
     @staticmethod
     def defaultTagString():
         return RecSettings._addon.getSetting("recordTags")
@@ -92,12 +131,15 @@ def recRecord(title, videourl, plot, aired, duration, channel, banner, videoQual
     plot = urllib.unquote_plus(plot).encode('UTF-8')
     channel = urllib.unquote_plus(channel)
 
-    (quality, targetFolder, useSeparateFolder, genre, tagString) = recShowParamDialogs()
-    quality = videoQualityStrings[quality]
+    (quality, targetFolder, useSeparateFolder, saveNFO, mediaType, genre, tagString) = recShowParamDialogs()
 
     if not targetFolder:
         notifyUser(transl(30908))
         return
+
+    quality = videoQualityStrings[quality]
+    if saveNFO and mediaType is not None:
+        mediaType = ["movie", "episodedetails"][mediaType]
     
     manifestURL = recExtractManifestURL(videourl)
     manifestURL = recVideourlChangeQuality(manifestURL, quality)
@@ -108,43 +150,78 @@ def recRecord(title, videourl, plot, aired, duration, channel, banner, videoQual
             tmpAired = manifestURL[(found+10):(found+20)]
             if None != re.match(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$", tmpAired):
                 aired = tmpAired
+    if not aired:  # otherwise take current date
+        aired = datetime.datetime.now().strftime("%Y-%m-%d")
     
     targetFile = (aired + "_" + title.replace(":","_")
-                  .replace(" ","-").replace("?","").replace("!",""))
+                  .replace(" ","-").replace("?","").replace("!","")
+                  .replace("/","").replace("\\",""))
+    
+    if RecSettings.askFilename():
+        targetFile = xbmcgui.Dialog().input(transl(30934), defaultt=targetFile)
+        targetFile = (targetFile.replace("?","").replace("!","")
+                      .replace("/","").replace("\\",""))
+
     if useSeparateFolder:
         targetFolder = targetFolder + targetFile + "/"
     targetFile = targetFile + ".flv"
 
+    if os.path.isfile(targetFolder  + "/" + targetFile):
+        if not xbmcgui.Dialog().yesno(transl(30906), transl(30935)):
+            #TODO if overwrite? == No => ask for new filename
+            notifyUser(transl(30908))
+            return
+
     pDialog = xbmcgui.DialogProgress()
-    pDialog.create("ORF-TVthek Recorder", title, "", transl(30914))
+    pDialog.create(transl(30906), title, "", transl(30914))
     if recDownloadStream(manifestURL, targetFolder, targetFile, pDialog, title):
-        recGenerateNFO(title, plot, aired, duration, channel, genre, tagString, pDialog, title)
-        notifyUser(title + "\n" + transl(30917), 3000)  #done
+        if saveNFO:
+            recGenerateNFO(title, plot, aired, duration, channel, mediaType, genre, tagString, pDialog, title)
+        notifyUser(cutStr(title, 25) + (".." if title[24:] else "") + "\n" + transl(30917), 3000)  #done
     else:
-        notifyUser(title + "\n" + transl(30918), 3000)  #error
+        notifyUser(cutStr(title, 25) + "\n" + transl(30918), 3000)  #error
     pDialog.close()
 
 
 def recShowParamDialogs():
     """Show dialogs questioning download/storing parameters."""
     dialog = xbmcgui.Dialog()
+    
     defaultQuality = RecSettings.defaultRecordQuality(range(4))
-    quality = dialog.select(transl(30904),
+    quality = defaultQuality if not RecSettings.askRecordQuality() else \
+              dialog.select(transl(30904),
                             [transl(i) for i in [30023, 30024, 30025, 30044]],
                             preselect=defaultQuality)
 
-    folder = dialog.browseSingle(3, transl(30905), "video", defaultt=RecSettings.defaultFolder())
+    folder = RecSettings.defaultFolder() if not RecSettings.askFolder() else \
+             dialog.browseSingle(3, transl(30905), "video", defaultt=RecSettings.defaultFolder())
 
-    useSeparateFolder = dialog.yesno(transl(30906), transl(30907))
+    useSeparateFolder = RecSettings.defaultUseSeparateFolder() if not RecSettings.askUseSeparateFolder() else \
+                        dialog.yesno(transl(30906), transl(30907))
 
-    genre = dialog.input(transl(30909), defaultt=RecSettings.defaultGenre())
+    saveNFO = RecSettings.defaultSaveNFO() if not RecSettings.askSaveNFO() else \
+              dialog.yesno(transl(30906), transl(30933))
 
-    tags = dialog.input(transl(30910), defaultt=RecSettings.defaultTagString())
+    if saveNFO:
+        defaultMediaType = RecSettings.defaultMediaType(range(2))
+        mediaType = defaultMediaType if not RecSettings.askMediaType() else \
+                  dialog.select(transl(30932), [transl(i) for i in [30924, 30925]],
+                                preselect=defaultMediaType)
+
+        genre = RecSettings.defaultGenre() if not RecSettings.askGenre() else \
+                dialog.input(transl(30909), defaultt=RecSettings.defaultGenre())
+
+        tags = RecSettings.defaultTagString() if not RecSettings.askTagString() else \
+                dialog.input(transl(30910), defaultt=RecSettings.defaultTagString())
+    else:
+        mediaType = None
+        genre = None
+        tags = None
     
-    return (quality, folder, useSeparateFolder, genre, tags)
+    return (quality, folder, useSeparateFolder, saveNFO, mediaType, genre, tags)
 
 
-def recGenerateNFO(title, plot, aired, duration, channel, genre, tags, pDialog=None, pDialogHeading=""):
+def recGenerateNFO(title, plot, aired, duration, channel, mediaType, genre, tags, pDialog=None, pDialogHeading=""):
     """Generate an NFO file for the given properties."""
     #TODO
     #pDialog.update(int(percentage), pDialogHeading, "", transl(30916))
@@ -179,3 +256,14 @@ def recDownloadStream(manifestURL, targetFolder, targetFile, pDialog=None, pDial
     except:
         recLog("The record command yielded an error!", xbmc.LOGERROR)
         return False
+
+def cutStr(string_, length_, ellips="..."):
+    """Truncate the given string if its length is greater
+       than the given one and append the given ellipsis string.
+    """
+    shortLen = (length_-len(ellips))
+    if shortLen < 0:
+        return ellips[:length_]
+    else:
+        return string_[:shortLen] + (ellips if string_[length_:] else string_[shortLen:length_])
+

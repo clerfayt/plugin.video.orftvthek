@@ -222,8 +222,8 @@ msgid "Select folder to save video"
 msgstr "Ordner zum Speichern auswählen"
 
 msgctxt "#30906"
-msgid "Separate folder?"
-msgstr "Separater Ordner"
+msgid "ORF-TVthek Recorder"
+msgstr "ORF-TVthek Recorder"
 
 msgctxt "#30907"
 msgid "Do you want to create a separate folder for your video within the selected folder?"
@@ -272,3 +272,71 @@ msgstr "Aufnahme fertiggestellt."
 msgctxt "#30918"
 msgid "Recording failed!"
 msgstr "Aufnahme fehlgeschlagen!"
+
+msgctxt "#30919"
+msgid "Ask for record quality?"
+msgstr "Nach Aufnahme Qualität fragen?"
+
+msgctxt "#30920"
+msgid "Ask for storage folder?"
+msgstr "Nach Ordner für aufgezeichnete Dateien fragen?"
+
+msgctxt "#30921"
+msgid "Ask for filename?"
+msgstr "Nach Dateiname für aufgezeichnete Dateien fragen?"
+
+msgctxt "#30922"
+msgid "Ask for media type (movie vs. TV show episode)?"
+msgstr "Nach Medien-Typ fragen (Film vs. Folge einer TV-Serie)?"
+
+msgctxt "#30923"
+msgid "Default media type"
+msgstr "Standard Medien-Typ"
+
+msgctxt "#30924"
+msgid "Movie"
+msgstr "Film"
+
+msgctxt "#30925"
+msgid "TV show episode"
+msgstr "Folge einer TV-Serie"
+
+msgctxt "#30926"
+msgid "Ask for genre?"
+msgstr "Nach Genre fragen?"
+
+msgctxt "#30927"
+msgid "Ask for tags?"
+msgstr "Nach Tags fragen?"
+
+msgctxt "#30928"
+msgid "Ask for whether to use a separate folder for recorded videos?"
+msgstr "Danach fragen ob ein separater Ordner für aufgezeichnete Videos erstellt wird?"
+
+msgctxt "#30929"
+msgid "Default: Use a separate folder for recorded videos?"
+msgstr "Standard: Einen separaten Ordner für aufgezeichnete Videos erstellen?"
+
+msgctxt "#30930"
+msgid "Ask for whether to save NFO file (video infos)?"
+msgstr "Danach fragen ob NFO Datei (Video Infos) gespeichert werden soll?"
+
+msgctxt "#30931"
+msgid "Default: Save NFO file (video infos)?"
+msgstr "Standard: NFO Datei (Video Infos) speichern?"
+
+msgctxt "#30932"
+msgid "Choose media type"
+msgstr "Medien Typ auswählen"
+
+msgctxt "#30933"
+msgid "Save NFO file (video infos)?"
+msgstr "NFO Datei (Video Infos) speichern?"
+
+msgctxt "#30934"
+msgid "Enter video filename (without file extension)"
+msgstr "Video Dateinamen (ohne Dateinamen-Erweiterung) eingeben"
+
+msgctxt "#30935"
+msgid "File already exists. Overwrite?"
+msgstr "Datei existiert bereits. Überschreiben?"
