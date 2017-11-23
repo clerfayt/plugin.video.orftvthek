@@ -15,11 +15,11 @@ def parameters_string_to_dict(parameters):
 
 
 def debugLog(message,type):
-    output = "[ORF TVTHEK] ("+str(type)+") "+str(message);
+    output = "[ORF TVTHEK] ("+type+") "+message;
     xbmc.log(msg=output, level=xbmc.LOGDEBUG)
 
-def notifyUser(message, time_=2000):
+def notifyUser(message):
     addon = xbmcaddon.Addon()
     name = addon.getAddonInfo('name')
     icon = addon.getAddonInfo('icon')
-    xbmc.executebuiltin('Notification(%s, %s, %s, %s)' % (name, message, str(time_), icon))
+    xbmc.executebuiltin('Notification(%s, %s, %s, %s)'%(name,message, "", icon))

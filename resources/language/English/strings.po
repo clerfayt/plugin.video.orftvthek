@@ -366,3 +366,23 @@ msgstr ""
 msgctxt "#30938"
 msgid "Error while creating nfo file."
 msgstr ""
+
+msgctxt "#30939"
+msgid "Save thumbnail image?"
+msgstr ""
+
+msgctxt "#30940"
+msgid "Ask for whether to save thumbnail image?"
+msgstr ""
+
+msgctxt "#30941"
+msgid "Default: Save thumbnail image?"
+msgstr ""
+
+msgctxt "#30942"
+msgid "Could not save thumbnail."
+msgstr ""
+
+msgctxt "#30943"
+msgid "Downloading thumbnail file..."
+msgstr ""
