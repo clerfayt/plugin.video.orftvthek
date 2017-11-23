@@ -44,12 +44,6 @@ class RecSettings:
     def defaultSaveNFO():
         return RecSettings._addon.getSetting("saveNFO") == "true"
     @staticmethod
-    def askSaveThumb():
-        return RecSettings._addon.getSetting("askSaveThumb") == "true"
-    @staticmethod
-    def defaultSaveThumb():
-        return RecSettings._addon.getSetting("saveThumb") == "true"
-    @staticmethod
     def askMediaType():
         return RecSettings._addon.getSetting("askRecordMediaType") == "true"
     @staticmethod
@@ -95,25 +89,6 @@ def recGetPluginMode():
     return "recordStream"
 
 
-def myNotify(message, header=None, time_=3000, icon=None):
-    """Send notification. If header==None the addon-name is used.
-       If icon==None the addon-icon is used.
-    """
-    _addon = xbmcaddon.Addon()
-    header = _addon.getAddonInfo('name') if not header else header
-    icon   = _addon.getAddonInfo('icon') if not icon else icon
-    xbmcgui.Dialog().notification(header, message, icon, time_)
-
-def myNotifyError(message, header=None, time_=3000):
-    myNotify(message, header, time_, xbmcgui.NOTIFICATION_ERROR)
-
-def myNotifyWarning(message, header=None, time_=3000):
-    myNotify(message, header, time_, xbmcgui.NOTIFICATION_WARNING)
-
-def myNotifyInfo(message, header=None, time_=3000):
-    myNotify(message, header, time_, xbmcgui.NOTIFICATION_INFO)
-
-
 def recContextMenuItem(pluginHandle, title, videourl, plot, date,
                        duration, channel, banner):
     """Create a contextMenuItem (i.e. a tuple(label, action))
@@ -151,18 +126,17 @@ def recVideourlChangeQuality(videourl, new_qualityString):
 
 
 def recRecord(title, videourl, plot, aired, duration, channel,
-              thumb, videoQualityStrings):
+              banner, videoQualityStrings):
     """Do the stream record."""
     title = urllib.unquote_plus(title).encode('UTF-8')
     plot = urllib.unquote_plus(plot).encode('UTF-8')
     channel = urllib.unquote_plus(channel)
-    thumb = urllib.unquote_plus(thumb)
 
-    (quality, targetFolder, useSeparateFolder, saveNFO, saveThumb,
+    (quality, targetFolder, useSeparateFolder, saveNFO,
      mediaType, tvshow, genre, tagString) = recShowParamDialogs()
 
     if not targetFolder:  #user did not choose a folder -> cancel
-        myNotify(transl(30908))
+        notifyUser(transl(30908))
         return
 
     quality = videoQualityStrings[quality]
@@ -202,7 +176,7 @@ def recRecord(title, videourl, plot, aired, duration, channel,
     if os.path.isfile(targetFolder  + "/" + targetFile):
         if not xbmcgui.Dialog().yesno(transl(30906), transl(30935)):
             #TODO if overwrite? == No => ask for new filename
-            myNotify(transl(30908))
+            notifyUser(transl(30908))
             return
 
     #create folder structure
@@ -218,12 +192,10 @@ def recRecord(title, videourl, plot, aired, duration, channel,
             nfoFile = targetFolder + targetFile[:-4] + ".nfo"
             recGenerateNFO(nfoFile, title, plot, aired, duration, channel,
                            mediaType, tvshow, genre, tagString, pDialog, title)
-        if saveThumb and thumb:
-            thumbFile = targetFolder + targetFile[:-4] + "-thumb.jpg"
-            recDownloadThumb(thumbFile, thumb)
-        myNotify(cutStr(title, 25) + "\n" + transl(30917))  #done
+        notifyUser(cutStr(title, 25) + (".." if title[24:] else "") + "\n"
+                   + transl(30917), 3000)  #done
     else:
-        myNotifyError(cutStr(title, 25) + "\n" + transl(30918))  #error
+        notifyUser(cutStr(title, 25) + "\n" + transl(30918), 3000)  #error
     pDialog.close()
 
 
@@ -251,10 +223,6 @@ def recShowParamDialogs():
     saveNFO = RecSettings.defaultSaveNFO() if not RecSettings.askSaveNFO() else \
               dialog.yesno(transl(30906), transl(30933))
 
-    #ask: save a thumbnail image?
-    saveThumb = RecSettings.defaultSaveThumb() if not RecSettings.askSaveThumb() else \
-                dialog.yesno(transl(30906), transl(30939))
-
     mediaType = None
     tvshow = None
     genre = None
@@ -279,17 +247,15 @@ def recShowParamDialogs():
         tags = RecSettings.defaultTagString() if not RecSettings.askTagString() else \
                 dialog.input(transl(30910), defaultt=RecSettings.defaultTagString())
     
-    return (quality, folder, useSeparateFolder, saveNFO, saveThumb,
+    return (quality, folder, useSeparateFolder, saveNFO,
             mediaType, tvshow, genre, tags)
 
 def recGenerateNFO(filepath, title, plot, aired, duration, channel, mediaType,
                    tvShowName, genres, tags, pDialog=None, pDialogHeading=""):
     """Generate an NFO file for the given properties."""
-
     def _progress(percentage):
         if pDialog:
             pDialog.update(percentage, pDialogHeading, "", transl(30916))
-
     _progress(2)
     try:
         f = open(filepath, "w+")
@@ -325,11 +291,11 @@ def recGenerateNFO(filepath, title, plot, aired, duration, channel, mediaType,
             f.write("</%s>\n" % mediaType)
             _progress(100)
         except:
-            myNotifyWarning(transl(30938))  #error
+            notifyUser(transl(30938))  #error
         finally:
             f.close()
     except (IOError, OSError) as e:
-        myNotifyWarning(transl(30938))  #error
+        notifyUser(transl(30938))  #error
 
 
 def recDownloadStream(manifestURL, targetFolder, targetFile,
@@ -362,22 +328,6 @@ def recDownloadStream(manifestURL, targetFolder, targetFile,
     except:
         recLog("The record command yielded an error!", xbmc.LOGERROR)
         return False
-
-
-def recDownloadThumb(targetFilepath, sourceFileurl,
-                     pDialog=None, pDialogHeading=""):
-    """Download the given thumbnail and store it."""
-
-    def _progress(percentage):
-        if pDialog:
-            pDialog.update(percentage, pDialogHeading, "", transl(30943))
-
-    try:
-        _progress(15)  #TODO get real progress(?)
-        urllib.urlretrieve(sourceFileurl, targetFilepath)
-    except:
-        myNotifyWarning(cutStr(sourceFileurl, 25) + "\n" + transl(30942))  #error
-    _progress(100)
 
 
 def cutStr(string_, length_, ellips="..."):

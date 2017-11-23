@@ -352,23 +352,3 @@ msgstr "Standard Name einer TV-Serie"
 msgctxt "#30938"
 msgid "Error while creating nfo file."
 msgstr "Fehler beim Erzeugen der nfo Datei."
-
-msgctxt "#30939"
-msgid "Save thumbnail image?"
-msgstr "Vorschau Bild speichern?"
-
-msgctxt "#30940"
-msgid "Ask for whether to save thumbnail image?"
-msgstr "Danach fragen ob Vorschau Bild gespeichert werden soll?"
-
-msgctxt "#30941"
-msgid "Default: Save thumbnail image?"
-msgstr "Standard: Vorschau Bild speichern"
-
-msgctxt "#30942"
-msgid "Could not save thumbnail."
-msgstr "Vorschaubild konnte nicht gespeichert werden."
-
-msgctxt "#30943"
-msgid "Downloading thumbnail file..."
-msgstr "Vorschaubild wird heruntergeladen..."
