@@ -210,8 +210,8 @@ msgid "Default record quality"
 msgstr "Standard Aufnahme Qualität"
 
 msgctxt "#30903"
-msgid "Record stream"
-msgstr "Stream aufzeichnen"
+msgid "Record video"
+msgstr "Video aufzeichnen"
 
 msgctxt "#30904"
 msgid "Choose record quality"

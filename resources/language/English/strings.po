@@ -224,7 +224,7 @@ msgid "Default record quality"
 msgstr ""
 
 msgctxt "#30903"
-msgid "Record stream"
+msgid "Record video"
 msgstr ""
 
 msgctxt "#30904"

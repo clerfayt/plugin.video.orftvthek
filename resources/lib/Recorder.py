@@ -9,6 +9,10 @@ import datetime
 
 from .helpers import *
 
+#http://www.mypy.pythonblogs.com/12_mypy/archive/1253_workaround_for_python_bug_ascii_codec_cant_encode_character_uxa0_in_position_111_ordinal_not_in_range128.html
+reload(sys)
+sys.setdefaultencoding("utf8")
+
 class RecSettings:
     """Helper class with static methods for retrieving settings values."""
     _addon = xbmcaddon.Addon()
@@ -212,14 +216,18 @@ def recRecord(title, videourl, plot, aired, duration, channel,
     # show progress while downloading and saving
     pDialog = xbmcgui.DialogProgress()
     pDialog.create(transl(30906), title, "", transl(30914))
-    
+
+    # download stream
     if recDownloadStream(manifestURL, targetFolder, targetFile, pDialog, title):
+        # create nfo
         if saveNFO:
             nfoFile = targetFolder + targetFile[:-4] + ".nfo"
             recGenerateNFO(nfoFile, title, plot, aired, duration, channel,
                            mediaType, tvshow, genre, tagString, pDialog, title)
+        # download thumb
         if saveThumb and thumb:
-            thumbFile = targetFolder + targetFile[:-4] + "-thumb.jpg"
+            thumbFile = targetFolder + targetFile[:-4] + "-thumb" \
+                        + os.path.splitext(thumb)[1]
             recDownloadThumb(thumbFile, thumb)
         myNotify(cutStr(title, 25) + "\n" + transl(30917))  #done
     else:
